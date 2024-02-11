@@ -1,0 +1,9 @@
+{
+"mongoURI":"mongodb+srv://ksfreelancer95:iWFOWvR3bgB5HhZJ@cluster0.dld1v4l.mongodb.net/?retryWrites=true&w=majority",
+
+"githubClientId":"2a1e91003b47de0bacbd",
+"githubClientSecret":"2f5505992f5d9dbddc81b0f93417ac8dd1b24cda",
+
+
+"jwtToken":"mysecretkey"
+}
