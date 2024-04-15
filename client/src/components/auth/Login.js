@@ -15,6 +15,9 @@ const Login = () => {
     email: "",
     password: "",
   });
+  if (isAuthenticated === true) {
+    return <Navigate to="/dashboard"></Navigate>;
+  }
   const { email, password } = formData;
   const onChange = (e) =>
     setFormData((state) => {
@@ -25,9 +28,6 @@ const Login = () => {
 
     dispatch(login({ email, password }));
   };
-  if (isAuthenticated === true) {
-    return <Navigate to="/dashboard"></Navigate>;
-  }
 
   return (
     <section className="container">

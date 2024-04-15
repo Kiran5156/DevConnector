@@ -23,9 +23,9 @@ export const register =
         auth.actions.register({ ...response.data, isAuthenticated: true })
       );
     } catch (error) {
-      console.log(error);
       const id = uuidv4();
       const errors = error.response.data.errors;
+      console.log(errors);
       if (errors.length > 0) {
         errors.forEach((error) =>
           dispatch(
@@ -59,11 +59,13 @@ export const login =
     };
     try {
       const response = await axios.post("/api/auth", body, config);
+      console.log(response);
       dispatch(auth.actions.login({ ...response.data, isAuthenticated: true }));
+      localStorage.setItem("x-auth-token", response.data.token);
     } catch (error) {
       const id = uuidv4();
       const errors = error.response.data.errors;
-      // console.log(errors);
+
       if (errors.length > 0) {
         errors.forEach((error) =>
           dispatch(
@@ -75,9 +77,30 @@ export const login =
           )
         );
       }
-      dispatch(auth.actions.login({ token: null, isAuthenticated: false }));
+      dispatch(
+        auth.actions.setError({ token: null, isAuthenticated: false, errors })
+      );
+      localStorage.removeItem("x-auth-token");
     }
   };
+
+export const authenticate = () => async (dispatch) => {
+  try {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "x-auth-token": localStorage.getItem("x-auth-token"),
+      },
+    };
+    const response = await axios.get("/api/auth", config);
+    console.log(response.data);
+  } catch (error) {
+    console.log(error.response.data);
+    localStorage.removeItem("x-auth-token");
+    localStorage.removeItem("isAuthenicated");
+    dispatch(auth.actions.logout());
+  }
+};
 
 const auth = createSlice({
   name: "authSlice",
@@ -89,12 +112,6 @@ const auth = createSlice({
   },
   reducers: {
     register(state, action) {
-      if (action.payload.isAuthenticated === false) {
-        localStorage.removeItem("x-auth-token");
-      } else {
-        localStorage.setItem("x-auth-token", action.payload.token);
-      }
-
       return {
         ...state,
         ...action.payload,
@@ -103,30 +120,21 @@ const auth = createSlice({
       };
     },
     login(state, action) {
-      if (action.payload.token) {
-        localStorage.setItem("x-auth-token", action.payload.token);
-
-        return { ...state, token: action.payload.token, isAuthenticated: true };
-      } else {
-        localStorage.removeItem("x-auth-token");
-
-        return {
-          ...state,
-          token: null,
-          isAuthenticated: false,
-        };
-      }
+      return {
+        ...state,
+        token: null,
+        isAuthenticated: true,
+      };
     },
     authenticate(state, action) {
-      return { ...state, isAuthenticated: true };
+      return { ...state, isAuthenticated: action.payload };
     },
     logout(state, action) {
-      console.log(state);
       localStorage.removeItem("x-auth-token");
       return { ...state, token: null, isAuthenticated: false };
     },
   },
 });
 
-export const { logout, authenticate } = auth.actions;
+export const { logout } = auth.actions;
 export default auth.reducer;

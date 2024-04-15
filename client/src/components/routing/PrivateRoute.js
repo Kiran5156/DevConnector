@@ -17,7 +17,7 @@ const PrivateRoute = ({ element, path }) => {
     } else {
       navigate("/");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, element]);
 
   return <div>{content}</div>;
 };
